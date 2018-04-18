@@ -1,0 +1,109 @@
+#+TITLE: TAC2duino
+
+Firmware for the Arduino Micro/Leonardo to connect two TAC-2
+controllers as HID joysticks.
+
+* Dependencies
+  
+  - https://github.com/MHeironimus/ArduinoJoystickLibrary
+
+* Install
+
+  Once the dependency package has been set up it should be possible to
+  just upload the sketch from the Arduino IDE.
+
+* Compatibility
+
+  To enable linux to see the one arduino as two joysticks you need to
+  set some quirks for the usbhid module. They depend on which arduino
+  board you are using:
+  
+  - Arduino Leonardo :: ~0x2341:0x8036:0x040~
+  - Arduino Micro :: ~0x2341:0x8037:0x040~
+
+  The format is: ~<vendor>:<product id>:<quirk>~
+  where ~0x040 == HID_QUIRK_MULTI_INPUT~
+
+  To test it temporarily you can reload the usbhid module (this does
+  not work on Raspberry Pi since the usbhid driver is not compiled as
+  a module):
+
+  #+BEGIN_SRC sh
+  modprobe -r usbhid ; modprobe -v usbhid "quirks=0x2341:0x8037:0x040"
+  #+END_SRC
+
+  To make a permanent change you can set it on the kernel command
+  line (for Raspberry Pi edit the ~/boot/cmdline.txt~ file):
+
+  #+BEGIN_EXAMPLE
+  usbhid.quirks=0x2341:0x8037:0x040
+  #+END_EXAMPLE
+
+  or set it in the module configuration, by creating a file called
+  ~/etc/modprobe.d/arduino-controller.conf~ with the contents
+
+  #+BEGIN_EXAMPLE
+  options usbhid quirks=0x2341:0x8037:0x040
+  #+END_EXAMPLE
+
+  info from [[http://mheironimus.blogspot.se/2015/09/linux-support-for-arduino-leonardo.html][here]].
+
+* Connecting
+
+  To connect the TAC-2 to the Arduino use the following schematics.
+
+** TAC-2 Connector
+
+   The TAC-2 uses a standard female [[https://en.wikipedia.org/wiki/D-subminiature#DE-9][DE-9]] connector. The way that I
+   connected it to the arduino was to wire up some male DE-9
+   connectors and run that to the arduino. That way changing the
+   connected controller is trivial and does not require any
+   modifications to the controller. It is of course possible to run
+   wires to the controller directly.
+
+   Note that a standard serial cable is not wired in a compatible way
+   to the TAC-2.
+
+*** Ugly ascii art of TAC-2 connector pins with numbering
+
+    #+BEGIN_EXAMPLE
+      -------------
+      \ 1 2 3 4 5 /
+       \ 6 7 8 9 /
+        --------
+    #+END_EXAMPLE
+
+*** Pinout
+
+    This table show which pin on the controller corresponds to which
+    function. The other pins are not populated on the TAC-2 but may be
+    on other controllers (I don't know).
+
+    |-----+--------|
+    | pin | button |
+    |-----+--------|
+    |   1 | UP     |
+    |   2 | DOWN   |
+    |   3 | LEFT   |
+    |   4 | RIGHT  |
+    |   6 | FIRE   |
+    |   8 | GND    |
+    |-----+--------|
+  
+** arduoino side
+
+   The following table shows which pin on the TAC-2 should be
+   connected to which named pin on the arduino, for each controller.
+   
+   This can also be configured in the firmware file.
+
+   |--------------+---------------------+---------------------|
+   | joystick pin | arduino pin (joy 1) | arduino pin (joy 2) |
+   |--------------+---------------------+---------------------|
+   |            1 | 1 (TX)              |                   6 |
+   |            2 | 0 (RX)              |                   8 |
+   |            3 | 2                   |                   9 |
+   |            4 | 3                   |                  10 |
+   |            6 | 4                   |                  16 |
+   |            8 | GND                 |                 GND |
+   |--------------+---------------------+---------------------|
