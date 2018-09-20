@@ -63,7 +63,7 @@ const uint8_t joy2b[] = {6, 8, 9, 10, 16};
 //const uint8_t restn = 5;
 //const uint8_t rest[] = {5, 7, 14, 18, 19};
 
-// HID input represenations. ID needs to be unique per input, and 0x03 or higher.
+// HID input representations. ID needs to be unique per input, and 0x03 or higher.
 // ID 0x01 and 0x02 are taken for mouse and keyboard by the HID library.
 Joystick_ joy[2] = {
   Joystick_(0x03, JOYSTICK_TYPE_JOYSTICK, joy1n, 0, false,
