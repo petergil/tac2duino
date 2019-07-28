@@ -90,7 +90,7 @@ controllers as HID joysticks.
     |   8 | GND    |
     |-----+--------|
   
-** arduoino side
+** arduino side
 
    The following table shows which pin on the TAC-2 should be
    connected to which named pin on the arduino, for each controller.
